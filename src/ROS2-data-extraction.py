@@ -13,7 +13,7 @@ from time import time
 counter = 0
 
 # We create a folder where we ouput all the files
-base_directory = 'Extracted_Info//'
+base_directory = '..//Extracted_Info//'
 if not os.path.isdir(base_directory):
 	os.mkdir(base_directory)
 elif os.listdir(base_directory):
