@@ -12,7 +12,7 @@ from time import time
 class GUIApp(MDApp):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
-		self.screen = Builder.load_file('/home/omar/prov_ws/ROS2-Provenance-Recording/src/gui_config.py')
+		self.screen = Builder.load_file('gui_config.py')
 		self.flag = False
 
 	def build(self):
@@ -21,10 +21,10 @@ class GUIApp(MDApp):
 	def stop_run(self,*args):
 		#Defining the functionality of the Stop button
 		
-		#print(GUIApp.flag)
-		GUIApp.flag = True
+		print("self.flag =",self.flag)
+		self.flag = True
 		print("Recording Stopped")
-		print(GUIApp.flag)
+		print("self.flag =",self.flag)
 
 	def dummyprov_run(self,*args):
 		#Defining the functionality of the Dummy Prov Model button		
