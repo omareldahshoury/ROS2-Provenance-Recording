@@ -12,7 +12,7 @@ from prov.model import ProvDocument
 
 
 # We create a class for generating entitity objects
-class Entitiy:
+class Entity:
     # Here we intialize the class
     def __init__(self, prov_doc, UID, no_of_pubs, no_of_subs):
         _UID = UID
@@ -23,7 +23,15 @@ class Entitiy:
     
     # We collect the data and generate the entity in prov understandable terms
     def generate_entity(self, prov_doc):
-        
+        print("I'm Here!!!\n\n")
+
+    def topic_info_parser(data):
+        data_li = data.rstrip("\n ").split("\n")
+        UID = data_li[0].split(" ")[-1].lstrip("/")
+        no_of_pubs = int(data_li[1].split(" ")[-1])
+        no_of_subs = int(data_li[2].split(" ")[-1])
+
+        return UID, no_of_pubs, no_of_subs
 
 
 
@@ -43,11 +51,14 @@ if __name__ == "__main__":
     with open(base_directory + 'topics.txt', 'r') as tfp:
         print("The various topics beind monitored are:\n" + tfp.read())
 
+    print(all_files)
     # Extracting relevant topic data to create entities
     for file_name in all_files:
         # We check for valid files only
         if file_name.startswith("topic_"):
             with open(base_directory + file_name, 'r') as tfp:
-                data = tfp.read()
+                UID, no_of_pubs, no_of_subs = Entity.topic_info_parser(tfp.read())
+                e = Entity(prov_doc, UID, no_of_pubs, no_of_subs)
+
 
     print("Testing 1, 2, 3, ...")
