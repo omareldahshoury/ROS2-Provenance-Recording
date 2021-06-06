@@ -32,19 +32,26 @@ FloatLayout:
 		text_color: 0, 0, 0, 1
 		md_bg_color: 0, 1, 0, 1
 		size_hint: 0.2,0.12
-		pos_hint: {"center_x": 0.35, "center_y": 0.5}
+		pos_hint: {"center_x": 0.35, "center_y": 0.75}
 		on_release: app.trial_run(self, *args)
 	MDRaisedButton:
 		text: "Stop"
 		text_color: 0, 0, 0, 1
 		md_bg_color: 1, 0, 0, 0.8
 		size_hint: 0.2,0.12
-		pos_hint: {"center_x": 0.65, "center_y": 0.5}
+		pos_hint: {"center_x": 0.65, "center_y": 0.75}
 		on_release: app.stop_run(self, *args)
 	MDRaisedButton:
-		text: "Generate Prov Model"
+		text: "Dummy Prov Model"
 		text_color: 0, 0, 0, 1
 		md_bg_color: 0, 0.8, .9, 1
 		size_hint: 0.2,0.12
-		pos_hint: {"center_x": 0.5, "center_y": 0.2}
-		on_release: app.prov_run(self, *args)
+		pos_hint: {"center_x": 0.35, "center_y": 0.3}
+		on_release: app.dummyprov_run(self, *args)
+	MDRaisedButton:
+		text: "Ros to Prov Parser"
+		text_color: 0, 0, 0, 1
+		md_bg_color: 0, 0.8, .9, 1
+		size_hint: 0.2,0.12
+		pos_hint: {"center_x": 0.65, "center_y": 0.3}
+		on_release: app.parserprov_run(self, *args)
