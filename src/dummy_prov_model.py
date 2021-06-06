@@ -1,6 +1,7 @@
 # Importing the required libraries
 from prov.model import ProvDocument
 import prov
+import datetime
 
 # For visualizations
 from prov.dot import prov_to_dot
@@ -10,6 +11,7 @@ from IPython.display import Image
 ros = ProvDocument()
 
 # We can write name spaces here
+ros.set_default_namespace('https://docs.ros.org/en/dashing/Installation.html')
 ros.add_namespace('node', 'https://docs.ros.org/en/dashing/Tutorials/Understanding-ROS2-Nodes.html') # represents ros nodes
 ros.add_namespace('topic', 'https://docs.ros.org/en/dashing/Tutorials/Topics/Understanding-ROS2-Topics.html') # represents ros topics
 ros.add_namespace('activity', 'undefined') # represents the processes performed
@@ -18,6 +20,7 @@ ros.add_namespace('activity', 'undefined') # represents the processes performed
 ros.add_namespace('module', 'python programs or groups') # represents collection of ros enities, may be in the form of a program
 ros.add_namespace('user', 'agent editing/contributing to the program') # represents code contributors
 ros.add_namespace('enduser', 'end user who interacts with the program') # this represents the end user and his interaction with the code
+
 
 # Printing the prov so far
 # print(ros.get_provn())
@@ -32,10 +35,10 @@ ros.agent('node:/_ros2cli_daemon_0')
 # print(ros.get_provn())
 
 # We then create the processes/activities
-ros.activity('activity:Publish_to_chatter') # The topic name is associated with the activity itself
-ros.activity('activity:Subscribe_to_chatter')
-ros.activity('activity:Publish_to_parameter_events')
-ros.activity('activity:Publish_to_rosout')
+ros.activity('activity:Publish_to_chatter', datetime.datetime.now()) # The topic name is associated with the activity itself
+ros.activity('activity:Subscribe_to_chatter', datetime.datetime.now())
+ros.activity('activity:Publish_to_parameter_events', datetime.datetime.now())
+ros.activity('activity:Publish_to_rosout', datetime.datetime.now())
 
 # Printing the prov so far
 # print(ros.get_provn())
@@ -46,15 +49,15 @@ ros.entity('topic:chatter',\
             'prov:type':'std_msgs/msg/String',\
             'prov:list_of_publishers':'node_talker',\
             'prov:list_of_subscribers':'node_listener',\
-            'prov:time_initialized':'000000000000.00'})
+            'prov:time_initialized':datetime.datetime.now()})
 ros.entity('topic:parameter_events',\
            {'prov:label':'parameter_events',\
             'prov:type':'rcl_interfaces/msg/ParameterEvent',\
-            'prov:time_initialized':'000000000000.00'})
+            'prov:time_initialized':datetime.datetime.now()})
 ros.entity('topic:rosout',\
            {'prov:label':'rosout',\
             'prov:type':'rcl_interfaces/msg/Log',\
-            'prov:time_initialized':'000000000000.00'})
+            'prov:time_initialized':datetime.datetime.now()})
 
 # Printing the prov doc so far
 # print(ros.get_provn())
