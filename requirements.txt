@@ -1,3 +1,6 @@
+pandas
+prov
 kivy[base]
 kivymd
-pandas
+pydot
+ipython

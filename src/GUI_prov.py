@@ -26,16 +26,30 @@ class GUIApp(MDApp):
 		print("Recording Stopped")
 		print(GUIApp.flag)
 
-	def prov_run(self,*args):
-		#Defining the functionality of the Prov Model button		
+	def dummyprov_run(self,*args):
+		#Defining the functionality of the Dummy Prov Model button		
 		curr_directory = os.getcwd()
 		print("Generating Prov model...")
-		exec(open(os.path.join(curr_directory,'dummy_prov_model_ipynb.py')).read())
+		exec(open(os.path.join(curr_directory,'dummy_prov_model.py')).read())
 		#print("Done. Model is saved in the Extracted_Info directory.")
-		print("Opening Prov model")
-		#exec(open("prov_model.pdf").read())
+		print("\n Opening Prov model")
+		from PIL import Image
+		img = Image.open('ros-prov.png')
+		img.show()
+		print("Done.")		
+		#exec(open("ros-prov.png"))
 		
-
+	def parserprov_run(self,*args):
+		#Defining the functionality of the Ros to Prov Parser button		
+		curr_directory = os.getcwd()
+		print("Runing ROS2 to Prov Parser...")
+		exec(open(os.path.join(curr_directory,'ros_to_prov_parser.py')).read())
+		#print("Done. Model is saved in the Extracted_Info directory.")
+		#print("Opening Prov model")
+		#from PIL import Image
+		#img = Image.open('ros-prov.png')
+		#img.show()		
+		
 
 	def trial_run(self,*args):
 		#Defining the functionality of the Record button
@@ -129,6 +143,6 @@ class GUIApp(MDApp):
 			# else: 
 			# 	# Here we print the time elapsed for the last iteration
 			# 	print("Iteration:", counter, "total Time elapsed:", time()-start_time, 'seconds')
-		print(f"Recording Ended. A total of {counter} instances were saved.")
+		print(f"\n Recording Ended. A total of {counter} instances were saved.")
 
 GUIApp().run()
