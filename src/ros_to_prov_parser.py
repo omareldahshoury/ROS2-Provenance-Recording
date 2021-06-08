@@ -43,6 +43,37 @@ class Entity:
         return UID, no_of_pubs, no_of_subs
 
 
+# We create a class for generating entitity objects
+class Agent:
+    # Here we intialize the class
+    def __init__(self, prov_doc, UID, no_of_pubs, no_of_subs):
+        self.UID = UID
+        self.no_of_pubs = no_of_pubs
+        self.no_of_subs = no_of_subs
+        self.message = None
+        self.init_time = datetime.datetime.now()
+        self.generate_entity(prov_doc)
+    
+    # We collect the data and generate the entity in prov understandable terms
+    def generate_entity(self, prov_doc):
+        self.elem = prov_doc.entity('topic:{}'.format(self.UID),\
+            other_attributes = {'prov:label': self.UID,\
+            'prov:type': self.message,\
+            'prov:Number_of_Publishers': self.no_of_pubs,\
+            'prov:Number_of_Subscribers': self.no_of_subs,\
+            'prov:time_initialized':self.init_time})
+
+    # This function parses data from the node_ files and extracts relevant data
+    def agent_info_parser(data):
+        print('Hi, I have reached this function')
+        # data_li = data.rstrip("\n ").split("\n")
+        # UID = data_li[0].split(" ")[-1].lstrip("/")
+        # no_of_pubs = int(data_li[1].split(" ")[-1])
+        # no_of_subs = int(data_li[2].split(" ")[-1])
+
+        return 
+
+
 
 if __name__ == "__main__":
     
@@ -76,8 +107,25 @@ if __name__ == "__main__":
                 # e = Entity(prov_doc, UID, no_of_pubs, no_of_subs)
                 exec("entity_{} = Entity(prov_doc, UID, no_of_pubs, no_of_subs)".format((file_name.lstrip("topic_").rstrip('.txt'))))
     # print(Entity.message = "stlsfjdoiwjkef") int = 10
+ 
+    # Printing list of active nodes
+    with open(base_directory + 'nodes.txt', 'r') as nfp:
+        print("The various nodes beind monitored are:\n" + nfp.read())
 
-    print(prov_doc.get_provn())
+    # Extracting relevant node data to create agents and draw relations with other elements
+    for file_name in all_files:
+        # We check for valid files only
+        if file_name.startswith("node_"):
+            with open(base_directory + file_name, 'r') as nfp:
+                # data = nfp.read().split('\n')
+                Agent.agent_info_parser(nfp.read().split('\n'))
+                # UID, no_of_pubs, no_of_subs = Entity.topic_info_parser(nfp.read())
+                # exec("entity_{} = Entity(prov_doc, UID, no_of_pubs, no_of_subs)".format((file_name.lstrip("topic_").rstrip('.txt'))))
+    # print(Entity.message = "stlsfjdoiwjkef") int = 10
+    
+
+    # Previewing the prov doc in Prov N notation
+    # print(prov_doc.get_provn())
 
     # Saving the File and Visualizing the graph
     dot = prov_to_dot(prov_doc)
