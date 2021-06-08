@@ -108,4 +108,4 @@ dot.write_png('ros-prov.png')
 Image('ros-prov.png')
 
 # Printing the prov doc so far
-print(ros.get_provn())
+# print(ros.get_provn())

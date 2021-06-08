@@ -81,7 +81,5 @@ if __name__ == "__main__":
 
     # Saving the File and Visualizing the graph
     dot = prov_to_dot(prov_doc)
-    dot.write_png('ros-prov.png')
-    Image('ros-prov.png')
-
-    print("Testing 1, 2, 3, ...")
+    dot.write_png(base_directory + 'ros-prov.png')
+    Image(base_directory + 'ros-prov.png')
