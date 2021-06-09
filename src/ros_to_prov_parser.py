@@ -53,7 +53,7 @@ class Agent:
     
     # We collect the data and generate the agent in prov understandable terms
     def generate_agent(self, prov_doc):
-        print("My name is:", self.UID)
+        # print("My name is:", self.UID)
         self.elem = prov_doc.agent('node:{}'.format(self.UID),\
             other_attributes = {'prov:label': self.UID,\
             'prov:time_initialized':self.init_time})
@@ -109,7 +109,11 @@ def generate_subs(agent, prov_doc, subs): #, subs
     else:
         for elem in subs:
             topic, msg_format = elem.split(":")
+            
+            # We first update the entity object definitions and then the prov definitions for the same
             exec("entity_{}.message = msg_format".format(topic))
+            exec("entity_{}.generate_entity(prov_doc)".format(topic))
+            # exec(prov_doc.entity('topic:{}'.format(topic), other_attributes = ))
             prov_doc.activity('activity:Subscribe_to_{}'.format(topic), datetime.datetime.now())
 
     # prov_doc.activity('activity:Subscribe_to_chatter', datetime.datetime.now())
