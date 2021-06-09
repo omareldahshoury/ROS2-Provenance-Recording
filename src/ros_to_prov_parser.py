@@ -59,7 +59,7 @@ class Agent:
             'prov:time_initialized':self.init_time})
 
     # This function parses data from the node_ files and extracts relevant data
-    def agent_info_parser(self, data):
+    def agent_info_parser(self, prov_doc, data):
         # print('Hi, I have reached this function')
         # print(data)
         # First we extract the name of the node
@@ -86,11 +86,37 @@ class Agent:
                 li.append('_'.join(data.pop(0).strip(" /").split('/')))
         # We store the data from the last key as well
         extract_dict[current_key] = li
-        print(extract_dict, "\n\n")
+        # print(extract_dict, "\n\n")
+
+
+        # Now we build the relations between the systems
+        # First we create subscribers to get YouTube Famous
+        generate_subs(self.UID, prov_doc, extract_dict['Subscribers']) 
+        # print("========\n", extract_dict['Subscribers'], "\n========")
 
         return
 
 
+# This function relates an agent to a set of topics as subscriber
+# Note that we didn't create a class for activities themselves as these will be called
+# by just using their names/labels
+def generate_subs(agent, prov_doc, subs): #, subs
+    print(subs)
+    # If it is empty, then we return
+    if subs == ['']:
+        print("No subscriptions")
+        return
+    else:
+        for elem in subs:
+            topic, msg_format = elem.split(":")
+            exec("entity_{}.message = msg_format".format(topic))
+            prov_doc.activity('activity:Subscribe_to_{}'.format(topic), datetime.datetime.now())
+
+    # prov_doc.activity('activity:Subscribe_to_chatter', datetime.datetime.now())
+
+# Global declarations
+# List of Objects for the purpose of passing in between functions
+list_of_objects = []
 
 if __name__ == "__main__":
     
@@ -115,16 +141,22 @@ if __name__ == "__main__":
         print("The various topics beind monitored are:\n" + tfp.read())
 
     print(all_files)
+
+    
+
     # Extracting relevant topic data to create entities
     for file_name in all_files:
         # We check for valid files only
         if file_name.startswith("topic_"):
             with open(base_directory + file_name, 'r') as tfp:
                 UID, no_of_pubs, no_of_subs = Entity.topic_info_parser(tfp.read())
+                print(UID)
                 # e = Entity(prov_doc, UID, no_of_pubs, no_of_subs)
-                exec("entity_{} = Entity(prov_doc, UID, no_of_pubs, no_of_subs)".format((file_name.lstrip("topic_").rstrip('.txt'))))
-    # print(Entity.message = "stlsfjdoiwjkef") int = 10
- 
+                # exec("global entity_{}".format(UID))
+                exec("entity_{} = Entity(prov_doc, UID, no_of_pubs, no_of_subs)".format(UID))
+                # We append the new object to the global List of Objects
+                exec("list_of_objects.append(entity_{})".format(UID))
+    
     # Printing list of active nodes
     with open(base_directory + 'nodes.txt', 'r') as nfp:
         print("The various nodes beind monitored are:\n" + nfp.read())
@@ -138,7 +170,8 @@ if __name__ == "__main__":
                 # data = nfp.read().split('\n')
                 UID = file_name.lstrip("node_").rstrip('.txt') 
                 exec("agent_{} = Agent(prov_doc, UID)".format(UID))
-                exec("agent_{}.agent_info_parser(nfp.read().split('\\n'))".format(UID))
+                exec("agent_{}.agent_info_parser(prov_doc, nfp.read().split('\\n'))".format(UID))
+                exec("list_of_objects.append(agent_{})".format(UID))
     # print(Entity.message = "stlsfjdoiwjkef") int = 10
     
 
