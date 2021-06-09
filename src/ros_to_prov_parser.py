@@ -94,6 +94,10 @@ class Agent:
         generate_subs(self.UID, prov_doc, extract_dict['Subscribers']) 
         # print("========\n", extract_dict['Subscribers'], "\n========")
 
+        # Now we create publishers
+        generate_pubs(self.UID, prov_doc, extract_dict['Publishers']) 
+
+
         return
 
 
@@ -113,10 +117,36 @@ def generate_subs(agent, prov_doc, subs): #, subs
             # We first update the entity object definitions and then the prov definitions for the same
             exec("entity_{}.message = msg_format".format(topic))
             exec("entity_{}.generate_entity(prov_doc)".format(topic))
-            # exec(prov_doc.entity('topic:{}'.format(topic), other_attributes = ))
-            prov_doc.activity('activity:Subscribe_to_{}'.format(topic), datetime.datetime.now())
 
-    # prov_doc.activity('activity:Subscribe_to_chatter', datetime.datetime.now())
+            # Now we generate the Subscribe to activity Activity
+            prov_doc.activity('activity:Subscribe_to_{}'.format(topic), datetime.datetime.now())
+            # Now we build the relations in between the entity, agent and activity
+            exec("prov_doc.used('activity:Subscribe_to_{}','node:{}')".format(topic, agent))
+            exec("prov_doc.used('topic:{0}','activity:Subscribe_to_{0}')".format(topic))
+            exec("prov_doc.wasInformedBy('node:{0}','topic:{1}')".format(agent, topic))
+
+# This function relates an agent to a set of topics as a publisher
+def generate_pubs(agent, prov_doc, pubs):
+    print(pubs)
+    # If it is empty, then we return
+    if pubs == ['']:
+        print("No subscriptions")
+        return
+    else:
+        for elem in pubs:
+            topic, msg_format = elem.split(":")
+            
+            # We first update the entity object definitions and then the prov definitions for the same
+            exec("entity_{}.message = msg_format".format(topic))
+            exec("entity_{}.generate_entity(prov_doc)".format(topic))
+
+            # Now we generate the Publish to activity Activity
+            prov_doc.activity('activity:Publish_to_{}'.format(topic), datetime.datetime.now())
+            # Now we build the relations in between the entity, agent and activity
+            exec("prov_doc.used('node:{}','activity:Publish_to_{}')".format(agent, topic))
+            exec("prov_doc.used('topic:{0}','activity:Publish_to_{0}')".format(topic))
+            exec("prov_doc.wasInformedBy('topic:{}','node:{}')".format(topic, agent))
+
 
 # Global declarations
 # List of Objects for the purpose of passing in between functions
