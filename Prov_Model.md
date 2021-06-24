@@ -11,20 +11,21 @@ We define namespaces for each component in the ROS Prov Model
 
 **Entities:**
  - **Messages:**
-   * Definition: messages passed between nodes through topics
-   * Namespace: A namespace which uses a distinct topic name (E.g. prov:message:topic_name)
+   * _Definition_: messages passed between nodes through topics
+   * _Namespace_: A namespace which uses a distinct topic name (E.g. prov:message:topic_name)
    * We model messages as separate entities from Topics, messages emanate from the publishing activity and run parallel to the topic and join the receiving node. This helps us to trace the original publisher of the message
-   * Essential Attributes:
+   * _Essential Attributes_:
      - Format of the message (string, integer, custom formats etc)
      - The message itself
      - Time stamp – when the message was created (as well as sent and received)
-     - Generating node (not just the activity) prov:wasGeneratedBy (here we mean the sending node – we could create a custom prov definition for this)
+     - Generating node (not just the activity) prov:wasGeneratedBy (here we mean the sending node – we could create a custom prov definition for this). Currently, this can be automatically inferred from by the generating activity which is connected to a single node & topic
  - **Topics:**
-   * Definition: where the messages are published and subscribed
-   * Namespace: prov:topic
-   * Essential Attributes:
+   * _Definition_: where the messages are published and subscribed
+   * _Namespace_: prov:topic
+   * _Essential Attributes_:
      - Supported Format of message
      - Initialization time stamp
+     - Name/label of the topic
 
 Entities are defined by the data flow model. The connections between entities is done using prov:wasDerivedFrom
 
@@ -49,9 +50,9 @@ Consider an ‘updated’ entity which was generated from ‘original’ entity
 We introduce the Agents to the picture after we have decided the data process view, agents assist us to refine our prov model. We see agents from the view of responsibility
 
 **Nodes:**
- - Definition: ROS 2 Nodes qualify as nodes within our model
- - Namespace: We simply use prov:node as the namespace
- - Essential Attributes:
+ - _Definition_: ROS 2 Nodes qualify as nodes within our model
+ - _Namespace_: We simply use prov:node as the namespace
+ - _Essential Attributes_:
    * Initialization Time
    * Duration since initialization
    * How was it generated prov:wasGeneratedBy
@@ -72,5 +73,5 @@ Some open questions and/or problems to be solved:
  - Should publishers/subscribers (i.e. activities) be unique to nodes, topics or type of message being relayed? (The Answer is: we should have a custom publisher for a specific node publishing to a specific topic, for instance, 	prov:activity:Publish_to_topic_from_node)
  - In case where there is a single common activity for multiple entities, how to model the input/output relations without losing the relations (should more relations be added with the generating node and the subscribing node?)
  - What should be the relations between messages and topics in entities? 
-   * Should the messages be stored sequentially in the entity topic? (For the purposes of this projecdt, just being able to track the count of the messages seems to be sufficient)
+   * Should the messages be stored sequentially in the entity topic? (For the purposes of this project, just being able to track the count of the messages seems to be sufficient)
    * How should the two be visualized (ideally as messages passing through topics), how is this to be done?
