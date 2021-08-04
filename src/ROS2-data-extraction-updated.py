@@ -7,6 +7,7 @@ from ros2cli.node.strategy import NodeStrategy
 import rclpy
 from rclpy.node import Node
 import time
+from datetime import datetime
 import pandas as pd
 
 class MyNode(Node):
@@ -18,65 +19,96 @@ class MyNode(Node):
         service_server_list = []
         service_client_list = []
 
+        now = datetime.now()
+        current_time = now.strftime('%H:%M:%S.%f %a-%d-%b-%Y')
+        print("The time is : ", current_time)
+
         super().__init__("my_node")
         print("list of nodes")
         nodes = self.get_node_names()
-        print(nodes)
-        node_name = nodes[1]
-        node_namespace = nodes[0]
+        nodes = [n for n in nodes if not n.startswith('_') and n != "my_node"]
+        for i in nodes:
+            print(i)
 
-        HIDDEN_TOPIC_PREFIX = '_'
+        # print("the state is ", self.get_current_state("node_name").id())
 
         def topic_or_service_is_hidden(name):
             """
             Return True if a given topic or service name is hidden, otherwise False.
             """
-            return any(token for token in name.split('/') if token.startswith(HIDDEN_TOPIC_PREFIX))
+            return any(token for token in name.split('/') if token.startswith('_'))
  
 
         print("----------------------------------------------")
-        print("list of topics")
         time.sleep(1)
-        topics = self.get_topic_names_and_types(nodes)
-        topics = [(n, t) for (n, t) in topics if not topic_or_service_is_hidden(n)]
-        for i,t in topics:
-            print(i)
+        for j in nodes:
+            # print("these are j ",j)
+            topics = self.get_topic_names_and_types(i)
+            active_topics = [(n, t) for (n, t) in topics if n.startswith('rt')]
+            service_requests_topics = [(n, t) for (n, t) in topics if n.startswith('rq')]
+            service_response_topics = [(n, t) for (n, t) in topics if n.startswith('rr')]
 
-        print("----------------------------------------------")
-        print("list of publishers")
-        time.sleep(1)
-        publishers = self.get_publisher_names_and_types_by_node("node_name", "/")
-        for n1 in publishers:
-            publisher_list.append(n1)
-        print(publisher_list)
+            print("currently active topics for ", j)
+            for i,t in active_topics:
+                print(i)
 
-        print("----------------------------------------------")
-        print("list of subscribers")
-        time.sleep(1)
-        subscribers = self.get_subscriber_names_and_types_by_node(node_name, "/")
-        for n2 in subscribers:
-            subscriber_list.append(n2)
-        print(subscriber_list)
+            print("----------------------------------------------")
+            print("service requests topics for ", j)
+            for i,t in service_requests_topics:
+                print(i)
 
-
-        print("----------------------------------------------")
-        print("list of service server")
-        time.sleep(1)
-        services = self.get_service_names_and_types_by_node(node_name, "/")
-        for n3 in services:
-            service_server_list.append(n3)
-        print(service_server_list)
+            print("----------------------------------------------")
+            print("service response topics for ", j)
+            for i,t in service_response_topics:
+                print(i)
+            
+            print("----------------------------------------------")
+            print()
 
 
-        print("----------------------------------------------")
-        print("list of service client")
-        time.sleep(1)
-        clients = self.get_client_names_and_types_by_node(node_name, "/")
-        for n4 in clients:
-            service_client_list.append(n4)  
-        print(service_client_list)          
+        for names in nodes:
+            print("list of publishers for ", names)
+            publishers = self.get_publisher_names_and_types_by_node(names, "/")
+            for n1 in publishers:
+                publisher_list.append(n1)
+            for i, j in publisher_list:
+                print(i,":",j)
+            print("number of publishers : ", len(publisher_list))       
+            print("----------------------------------------------")
+            print()
 
-        # print("----------------------------------------------")
+
+        for names in nodes:
+            print("list of subscribers for ", names)
+            subscribers = self.get_subscriber_names_and_types_by_node(names, "/")
+            for n2 in subscribers:
+                subscriber_list.append(n2)
+            for i, j in subscriber_list:
+                print(i,":",j)
+            print("number of subscribers : ", len(subscriber_list))   
+            print("----------------------------------------------")
+            print()
+
+        for names in nodes:
+            print("list of service server for ", names)
+            services = self.get_service_names_and_types_by_node(names, "/")
+            for n3 in services:
+                service_server_list.append(n3)
+            for i, j in service_server_list:
+                print(i,":",j)
+            print("----------------------------------------------")
+            print()
+
+        for names in nodes:
+            print("list of service clients for ", names)
+            clients = self.get_client_names_and_types_by_node(names, "/")
+            for n4 in clients:
+                service_client_list.append(n4)  
+            for i, j in service_client_list:
+                print(i,":",j)         
+            print("----------------------------------------------")
+            print()
+
         # print("list of action server")
         # time.sleep(2)
         # services = self.get_action_server_names_and_types_by_node(nodes)
@@ -91,11 +123,11 @@ class MyNode(Node):
         #     print(n6, ":", t6)
 
 
-        print("--------------------------DATA---FRAME-------------------------------")
-        data={"col1": topic_list, "col2": subscriber_list}
-        df = pd.DataFrame.from_dict(data, orient='index')
-        print(df)
-        df.to_csv('to_csv_file.csv', index=False,header=True, encoding='utf-8')
+        # print("--------------------------DATA---FRAME-------------------------------")
+        # data={"col1": topic_list, "col2": subscriber_list}
+        # df = pd.DataFrame.from_dict(data, orient='index')
+        # print(df)
+        # df.to_csv('to_csv_file.csv', index=False,header=True, encoding='utf-8')
 
         # data = {'Nodes': node_name, 'topics': node_namespace}  
         # df = pd.DataFrame(data)
@@ -105,7 +137,10 @@ class MyNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MyNode()
+    for loop in range(0,5):
+        node = MyNode()
+        time.sleep(1)
+
 if __name__ == "__main__":
     main()
 
