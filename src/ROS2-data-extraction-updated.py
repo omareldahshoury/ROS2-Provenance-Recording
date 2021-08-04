@@ -19,9 +19,12 @@ class MyNode(Node):
         service_server_list = []
         service_client_list = []
 
+        # data_stored = []
+
         now = datetime.now()
         current_time = now.strftime('%H:%M:%S.%f %a-%d-%b-%Y')
         print("The time is : ", current_time)
+        # data_stored[loop][0] = current_time
 
         super().__init__("my_node")
         print("list of nodes")
@@ -123,7 +126,7 @@ class MyNode(Node):
         #     print(n6, ":", t6)
 
 
-        # print("--------------------------DATA---FRAME-------------------------------")
+        # # print("--------------------------DATA---FRAME-------------------------------")
         # data={"col1": topic_list, "col2": subscriber_list}
         # df = pd.DataFrame.from_dict(data, orient='index')
         # print(df)
@@ -135,13 +138,26 @@ class MyNode(Node):
         # df.loc[0, 'topics'] = topic_list
         # print(df)
 
+        # '''Saving data in a nested list'''
+        # data_stored = []
+
+        # for i in range(len(nodes))
+        #     for j in range(11):
+        #         data_stored[i][j] = 
+
+
+
 def main(args=None):
     rclpy.init(args=args)
-    for loop in range(0,5):
-        node = MyNode()
-        time.sleep(1)
+    while True:
+        try:
+            node = MyNode()
+            time.sleep(1)
+        except KeyboardInterrupt:
+            break
 
 if __name__ == "__main__":
     main()
+
 
 
