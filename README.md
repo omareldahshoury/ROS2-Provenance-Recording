@@ -1,7 +1,10 @@
 # ROS2-Provenance-Recording
-The following code extracts ROS 2 Provenance related information and displays it in prov related format
+This code repo models a running ROS system into its equivalent Prov format 
 
-src folder has the codes used:<br>
+### Description of Prov Model
+The outlines relating to the Prov Model have been defined in the file `Prov_Model.md`. This file describes the basic outlay of the system and the approach used to model the system
+
+### Files in `src` Folder 
 * `dummy_prov_model.py` -> A simple example of how a simple Prov model for a simple talker-listener ROS system would look like. This was used as reference when creating the ROS-Prov Modelling System. A Jupyter Notebook has also been included for a step by step explanation of implementation of the system `dummy_prov_model_ipynb.ipynb`
 * `ROS2-data-extraction.py` -> Extracts basic info about the ROS system and stores it locally. This file uses Command line (terminal) arguments to extract and save informatiom
 * `ROS2-data-extraction_old.py` -> Previous iteration of the code with the infinite loop and interrup exit
