@@ -2,21 +2,21 @@ import datetime
 import prov
 
 # We create a class for generating topic objects
-class Topics:
+class Topic:
     # Here we intialize the class
     def __init__(self, prov_doc, UID, message_type, init_time):
         self.UID = UID
-        self.message_type = None
+        self.message_type = message_type
         self.init_time = init_time
         self.last_active = init_time
-        self.generate_entity(prov_doc)
+        self.generate_topic(prov_doc)
     
     # We collect the data and generate the entity in prov understandable terms
     # This function should only be called the first time i.e. during initialization
-    def generate_entity(self, prov_doc):
+    def generate_topic(self, prov_doc):
         self.elem = prov_doc.entity('topic:{}'.format(self.UID),\
             other_attributes = {'prov:label': self.UID,\
-                                'prov:type': self.message,\
+                                'prov:type': self.message_type,\
                                 'prov:time_initialized':self.init_time,\
                                 'prov:last_active':self.last_active})
 
