@@ -17,6 +17,9 @@ from prov.model import ProvDocument
 import prov_utilities
 # To keep the order of input sequential wrt time
 from collections import OrderedDict
+# For visualizations
+from prov.dot import prov_to_dot
+from IPython.display import Image
 
 
 def extract_ros_info(recording_node):
@@ -87,7 +90,7 @@ def display_ros_info(ros_info, indent=0):
             display_ros_info(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))
-            
+
 
 def ros2prov(ros_info):
     """ This function takes the extracted information of the ROS system as input
@@ -110,7 +113,20 @@ def ros2prov(ros_info):
     prov_doc.add_namespace('activity', 'undefined') # represents the processes performed
 
     # We begin with creating the topics (entities)
+    for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
+        exec("entity_{} = prov_utilities.Topic(prov_doc,\
+                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'],\
+                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'],\
+                                 list(ros_info.keys())[-1])"\
+                                .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
+        exec("list_of_objects.append(entity_{})".\
+            format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
 
+    return prov_doc
+
+
+# Global Object list, because I am lazy to pass em through functions each and everytime
+list_of_objects = []
 
 if __name__ == "__main__":
     
@@ -130,4 +146,11 @@ if __name__ == "__main__":
     display_ros_info(ros_info)
 
     # Now we proceed to create a model using the collected info
-    ros2prov(ros_info)
+    prov_doc = ros2prov(ros_info)
+
+    # Saving the File and Visualizing the graph
+    print('Saving Files... to', os.curdir)
+    dot = prov_to_dot(prov_doc)
+    dot.write_png('ros-prov-revised.png')
+    Image('ros-prov-revised.png')
+    
