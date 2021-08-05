@@ -1,3 +1,4 @@
+# from _typeshed import HasFileno
 from collections import namedtuple
 
 from rclpy.action.graph import get_action_client_names_and_types_by_node
@@ -13,27 +14,18 @@ import pandas as pd
 class MyNode(Node):
     def __init__(self):
 
-        topic_list = []
-        publisher_list = []
-        subscriber_list = []
-        service_server_list = []
-        service_client_list = []
-
-        # data_stored = []
+        df2 = pd.DataFrame()
 
         now = datetime.now()
         current_time = now.strftime('%H:%M:%S.%f %a-%d-%b-%Y')
         print("The time is : ", current_time)
-        # data_stored[loop][0] = current_time
-
+        
         super().__init__("my_node")
         print("list of nodes")
         nodes = self.get_node_names()
         nodes = [n for n in nodes if not n.startswith('_') and n != "my_node"]
         for i in nodes:
             print(i)
-
-        # print("the state is ", self.get_current_state("node_name").id())
 
         def topic_or_service_is_hidden(name):
             """
@@ -44,24 +36,32 @@ class MyNode(Node):
 
         print("----------------------------------------------")
         time.sleep(1)
-        for j in nodes:
+        for names in nodes:
+
+            topic_list = []
+            publisher_list = []
+            subscriber_list = []
+            service_server_list = []
+            service_client_list = []
+            
+
             # print("these are j ",j)
             topics = self.get_topic_names_and_types(i)
             active_topics = [(n, t) for (n, t) in topics if n.startswith('rt')]
             service_requests_topics = [(n, t) for (n, t) in topics if n.startswith('rq')]
             service_response_topics = [(n, t) for (n, t) in topics if n.startswith('rr')]
 
-            print("currently active topics for ", j)
+            print("currently active topics for ", names)
             for i,t in active_topics:
                 print(i)
 
             print("----------------------------------------------")
-            print("service requests topics for ", j)
+            print("service requests topics for ", names)
             for i,t in service_requests_topics:
                 print(i)
 
             print("----------------------------------------------")
-            print("service response topics for ", j)
+            print("service response topics for ", names)
             for i,t in service_response_topics:
                 print(i)
             
@@ -69,7 +69,6 @@ class MyNode(Node):
             print()
 
 
-        for names in nodes:
             print("list of publishers for ", names)
             publishers = self.get_publisher_names_and_types_by_node(names, "/")
             for n1 in publishers:
@@ -81,7 +80,6 @@ class MyNode(Node):
             print()
 
 
-        for names in nodes:
             print("list of subscribers for ", names)
             subscribers = self.get_subscriber_names_and_types_by_node(names, "/")
             for n2 in subscribers:
@@ -92,7 +90,6 @@ class MyNode(Node):
             print("----------------------------------------------")
             print()
 
-        for names in nodes:
             print("list of service server for ", names)
             services = self.get_service_names_and_types_by_node(names, "/")
             for n3 in services:
@@ -102,7 +99,6 @@ class MyNode(Node):
             print("----------------------------------------------")
             print()
 
-        for names in nodes:
             print("list of service clients for ", names)
             clients = self.get_client_names_and_types_by_node(names, "/")
             for n4 in clients:
@@ -112,40 +108,25 @@ class MyNode(Node):
             print("----------------------------------------------")
             print()
 
-        # print("list of action server")
-        # time.sleep(2)
-        # services = self.get_action_server_names_and_types_by_node(nodes)
-        # for (n5,t5) in services:
-        #     print(n5, ":", t5)
 
-        # print("----------------------------------------------")
-        # print("list of action client")
-        # time.sleep(2)
-        # services = self.get_action_client_names_and_types_by_node(node_name, node_namespace)
-        # for (n6,t6) in services:
-        #     print(n6, ":", t6)
-
-
-        # # print("--------------------------DATA---FRAME-------------------------------")
-        # data={"col1": topic_list, "col2": subscriber_list}
-        # df = pd.DataFrame.from_dict(data, orient='index')
-        # print(df)
-        # df.to_csv('to_csv_file.csv', index=False,header=True, encoding='utf-8')
-
-        # data = {'Nodes': node_name, 'topics': node_namespace}  
-        # df = pd.DataFrame(data)
-        # df['topics'] = df['topics'].astype('object')
-        # df.loc[0, 'topics'] = topic_list
-        # print(df)
-
-        # '''Saving data in a nested list'''
-        # data_stored = []
-
-        # for i in range(len(nodes))
-        #     for j in range(11):
-        #         data_stored[i][j] = 
-
-
+            print("--------------------ROS2 DATA FRAME STORAGE-------------------------------")
+            temp_dict = {'Timestamps': current_time,
+                            'Nodes': names,
+                            'Active Topics': list(active_topics),
+                            'Service Request Topics': list(service_requests_topics),
+                            'Service Response Topics': list(service_response_topics),
+                            'Publisher': list(publisher_list),
+                            'No of Publishers': len(publisher_list),
+                            'Subscribers': list(subscriber_list),
+                            'No of Subscribers': len(subscriber_list),
+                            'Service Server List': list(service_server_list),
+                            'Service Client List': list(service_client_list),
+                            }
+            df1 = pd.DataFrame.from_dict(temp_dict, orient='index')
+            df2=df1.transpose()
+            df2.transpose()
+            df2.to_csv('Data_storage.csv', mode='a', header=False)
+            
 
 def main(args=None):
     rclpy.init(args=args)
