@@ -8,6 +8,15 @@ import rclpy
 from datetime import datetime
 # To introduce small delays
 import time
+# Primarily used to correctly source paths
+import os
+# Libraries used to create the Prov Doc 
+import prov
+from prov.model import ProvDocument
+# Custom Library to hold the Prov Definitions
+import prov_utilities
+# To keep the order of input sequential wrt time
+from collections import OrderedDict
 
 
 def extract_ros_info(recording_node):
@@ -24,6 +33,7 @@ def extract_ros_info(recording_node):
     current_time = datetime.now().strftime('%H:%M:%S.%f %a-%d-%b-%Y')
     
     # We initialize an empty dictionary, this will store all the relevant information
+    ros_info = OrderedDict()
     ros_info = {current_time: {'nodes': {}, 'topics':{}}}
     
     # Exlcusions
@@ -62,6 +72,7 @@ def extract_ros_info(recording_node):
     # Finally, we return the data structure
     return ros_info
 
+
 # Code from https://stackoverflow.com/questions/3229419/how-to-pretty-print-nested-dictionaries
 def display_ros_info(ros_info, indent=0):
     """ Code to print the dictionary in a semi-readable format
@@ -76,6 +87,29 @@ def display_ros_info(ros_info, indent=0):
             display_ros_info(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))
+            
+
+def ros2prov(ros_info):
+    """ This function takes the extracted information of the ROS system as input
+        and then uses it to create a Prov Model.
+        This function repurposes the code used in `ros_to_prov_parser.py` with
+        appropriate edits to suit the current version
+
+        Input:      Dictionary of extracted info
+
+        Output:     Saves a pdf of the visual representation of the Prov Model
+                    Saves the Prov Model in Prov-N format
+    """
+    # We create an object of the prov class where we input all the data in PROV-N format
+    prov_doc = ProvDocument()
+
+    # Defining namespaces
+    prov_doc.set_default_namespace('https://docs.ros.org/en/dashing/Installation.html')
+    prov_doc.add_namespace('node', 'https://docs.ros.org/en/dashing/Tutorials/Understanding-ROS2-Nodes.html') # represents ros nodes
+    prov_doc.add_namespace('topic', 'https://docs.ros.org/en/dashing/Tutorials/Topics/Understanding-ROS2-Topics.html') # represents ros topics
+    prov_doc.add_namespace('activity', 'undefined') # represents the processes performed
+
+    # We begin with creating the topics (entities)
 
 
 if __name__ == "__main__":
@@ -96,3 +130,4 @@ if __name__ == "__main__":
     display_ros_info(ros_info)
 
     # Now we proceed to create a model using the collected info
+    ros2prov(ros_info)
