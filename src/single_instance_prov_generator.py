@@ -39,9 +39,11 @@ def extract_ros_info(recording_node):
         # We don't want to save the recorder node as it isn't part of the system
         if node not in excluded_nodes:
             # We get the Publishing relations for each node
-            list_of_pubs = recording_node.get_publisher_names_and_types_by_node(node, namespace)
+            pubs = recording_node.get_publisher_names_and_types_by_node(node, namespace)
+            list_of_pubs = [elem for elem,_ in pubs]
             # We then get the Subscriptions for each node
-            list_of_subs = recording_node.get_subscriber_names_and_types_by_node(node, namespace)
+            subs = recording_node.get_subscriber_names_and_types_by_node(node, namespace)
+            list_of_subs = [elem for elem,_ in subs]
             # Then we finally store them
             ros_info[current_time]['nodes'][node] = {'name': node,
                                                     'namespace': namespace,
@@ -60,6 +62,22 @@ def extract_ros_info(recording_node):
     # Finally, we return the data structure
     return ros_info
 
+# Code from https://stackoverflow.com/questions/3229419/how-to-pretty-print-nested-dictionaries
+def display_ros_info(ros_info, indent=0):
+    """ Code to print the dictionary in a semi-readable format
+
+        Input:      Dictionary of extracted info
+
+        Output:     None
+    """
+    for key, value in ros_info.items():
+        print('\t' * indent + str(key))
+        if isinstance(value, dict):
+            display_ros_info(value, indent+1)
+        else:
+            print('\t' * (indent+1) + str(value))
+
+
 if __name__ == "__main__":
     
     # We initialize rclpy
@@ -71,5 +89,10 @@ if __name__ == "__main__":
     # 100 millisec time to let the system setup
     time.sleep(0.1)
 
+    # Next we extract the info
     ros_info = extract_ros_info(r2p)
-    print(ros_info)
+
+    # Displaying the extracted Info
+    display_ros_info(ros_info)
+
+    # Now we proceed to create a model using the collected info
