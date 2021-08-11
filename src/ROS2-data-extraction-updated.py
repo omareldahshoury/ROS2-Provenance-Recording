@@ -110,6 +110,21 @@ class MyNode(Node):
 
 
             print("--------------------ROS2 DATA FRAME STORAGE-------------------------------")
+
+            '''
+            The generated csv file has the following format:
+            col1 = timestamp,
+            col2 = nodes
+            col3 = active topics
+            col4 = service request topics
+            col5 = service response topics
+            col6 = publishers
+            col7 = number of publishers
+            col8 = subscribers
+            col9 = number of subscribers
+            col10 = service servers
+            col11 = service client
+            '''
             temp_dict = {'Timestamps': current_time,
                             'Nodes': names,
                             'Active Topics': list(active_topics),
