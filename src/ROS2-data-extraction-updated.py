@@ -1,6 +1,4 @@
-# from _typeshed import HasFileno
 from collections import namedtuple
-
 from rclpy.action.graph import get_action_client_names_and_types_by_node
 from rclpy.action.graph import get_action_server_names_and_types_by_node
 from rclpy.node import HIDDEN_NODE_PREFIX
@@ -13,19 +11,20 @@ import pandas as pd
 
 class MyNode(Node):
     def __init__(self):
-
+        
+        # defining a dataframe to store all the data
         df2 = pd.DataFrame()
 
+        # to store the current timestamp
         now = datetime.now()
         current_time = now.strftime('%H:%M:%S.%f %a-%d-%b-%Y')
         print("The time is : ", current_time)
         
         super().__init__("my_node")
-        print("list of nodes")
+
+        # to get the list of nodes
         nodes = self.get_node_names()
         nodes = [n for n in nodes if not n.startswith('_') and n != "my_node"]
-        for i in nodes:
-            print(i)
 
         def topic_or_service_is_hidden(name):
             """
@@ -33,11 +32,12 @@ class MyNode(Node):
             """
             return any(token for token in name.split('/') if token.startswith('_'))
  
-
-        print("----------------------------------------------")
         time.sleep(1)
+
+        # looping over all the currently active nodes
         for names in nodes:
 
+            # defining variables
             topic_list = []
             publisher_list = []
             subscriber_list = []
@@ -45,71 +45,36 @@ class MyNode(Node):
             service_client_list = []
             
 
-            # print("these are j ",j)
-            topics = self.get_topic_names_and_types(i)
+            # to get the topics
+            topics = self.get_topic_names_and_types(names)
             active_topics = [(n, t) for (n, t) in topics if n.startswith('rt')]
             service_requests_topics = [(n, t) for (n, t) in topics if n.startswith('rq')]
             service_response_topics = [(n, t) for (n, t) in topics if n.startswith('rr')]
 
-            print("currently active topics for ", names)
-            for i,t in active_topics:
-                print(i)
 
-            print("----------------------------------------------")
-            print("service requests topics for ", names)
-            for i,t in service_requests_topics:
-                print(i)
-
-            print("----------------------------------------------")
-            print("service response topics for ", names)
-            for i,t in service_response_topics:
-                print(i)
-            
-            print("----------------------------------------------")
-            print()
-
-
-            print("list of publishers for ", names)
+            # to get the list of publishers
             publishers = self.get_publisher_names_and_types_by_node(names, "/")
             for n1 in publishers:
                 publisher_list.append(n1)
-            for i, j in publisher_list:
-                print(i,":",j)
-            print("number of publishers : ", len(publisher_list))       
-            print("----------------------------------------------")
-            print()
 
 
-            print("list of subscribers for ", names)
+            # to get the list of subscribers
             subscribers = self.get_subscriber_names_and_types_by_node(names, "/")
             for n2 in subscribers:
                 subscriber_list.append(n2)
-            for i, j in subscriber_list:
-                print(i,":",j)
-            print("number of subscribers : ", len(subscriber_list))   
-            print("----------------------------------------------")
-            print()
 
-            print("list of service server for ", names)
+            # to get the list of service server
             services = self.get_service_names_and_types_by_node(names, "/")
             for n3 in services:
                 service_server_list.append(n3)
-            for i, j in service_server_list:
-                print(i,":",j)
-            print("----------------------------------------------")
-            print()
 
-            print("list of service clients for ", names)
+            # to get the list of service clients
             clients = self.get_client_names_and_types_by_node(names, "/")
             for n4 in clients:
                 service_client_list.append(n4)  
-            for i, j in service_client_list:
-                print(i,":",j)         
-            print("----------------------------------------------")
-            print()
 
 
-            print("--------------------ROS2 DATA FRAME STORAGE-------------------------------")
+            # to store all the data in a dataframe
 
             '''
             The generated csv file has the following format:
