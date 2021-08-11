@@ -111,6 +111,8 @@ def ros2prov(ros_info):
     prov_doc.add_namespace('node', 'https://docs.ros.org/en/dashing/Tutorials/Understanding-ROS2-Nodes.html') # represents ros nodes
     prov_doc.add_namespace('topic', 'https://docs.ros.org/en/dashing/Tutorials/Topics/Understanding-ROS2-Topics.html') # represents ros topics
     prov_doc.add_namespace('activity', 'undefined') # represents the processes performed
+    prov_doc.add_namespace('msg', 'http://wiki.ros.org/msg') # represents ros messages
+    prov_doc.add_namespace('data_format', 'The format in which the data is stored/passed') # represents the processes performed
 
     # We begin with creating the topics (entities)
     for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
