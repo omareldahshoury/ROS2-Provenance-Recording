@@ -152,7 +152,10 @@ if __name__ == "__main__":
 
     # Saving the File and Visualizing the graph
     print('Saving Files... to', os.curdir)
+    
     dot = prov_to_dot(prov_doc)
     dot.write_png('ros-prov-revised.png')
     Image('ros-prov-revised.png')
     
+    # Saving the File in JSON Format
+    prov_doc.serialize('ros2prov.json')
