@@ -159,3 +159,6 @@ if __name__ == "__main__":
     
     # Saving the File in JSON Format
     prov_doc.serialize('ros2prov.json')
+    # Saving the Prov-N File
+    with open (os.curdir + 'provn.txt', 'w') as fp:
+	    fp.write(prov_doc.get_provn())
