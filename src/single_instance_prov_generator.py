@@ -2,6 +2,7 @@
     an equivalent Prov Model as per the definitions defined in Prov_Model.md
 """
 
+# Importing required libraries
 # Used to extract ROS system info
 import rclpy
 # Used to add timestamp information to arrange the datapoints sequentially
@@ -112,16 +113,17 @@ def ros2prov(ros_info):
     prov_doc.add_namespace('topic', 'https://docs.ros.org/en/dashing/Tutorials/Topics/Understanding-ROS2-Topics.html') # represents ros topics
     prov_doc.add_namespace('activity', 'undefined') # represents the processes performed
     prov_doc.add_namespace('msg', 'http://wiki.ros.org/msg') # represents ros messages
-    prov_doc.add_namespace('data_format', 'The format in which the data is stored/passed') # represents the processes performed
+    prov_doc.add_namespace('msg_format', 'The format in which the data/msg is stored/passed') # represents the processes performed
 
     # We begin with creating the topics (entities)
+    # We cycle 
     for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
-        exec("entity_{} = prov_utilities.Topic(prov_doc,\
+        exec("topic_{} = prov_utilities.Topic(prov_doc,\
                                  ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'],\
                                  ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'],\
                                  list(ros_info.keys())[-1])"\
                                 .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
-        exec("list_of_objects.append(entity_{})".\
+        exec("list_of_objects.append(topic_{})".\
             format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
 
     return prov_doc
@@ -151,14 +153,18 @@ if __name__ == "__main__":
     prov_doc = ros2prov(ros_info)
 
     # Saving the File and Visualizing the graph
-    print('Saving Files... to', os.curdir)
+    # First we check if the save folder exists or not
+    output_directory = 'ROS2Prov Model//'
+    if not os.path.isdir(output_directory):
+        os.mkdir(output_directory)
+    print('Saving Files... to', os.path.join(os.getcwd(),output_directory))
     
     dot = prov_to_dot(prov_doc)
-    dot.write_png('ros-prov-revised.png')
-    Image('ros-prov-revised.png')
+    dot.write_png(output_directory + 'ros-prov-revised.png')
+    Image(output_directory + 'ros-prov-revised.png')
     
     # Saving the File in JSON Format
-    prov_doc.serialize('ros2prov.json')
+    prov_doc.serialize(output_directory + 'ros2prov.json')
     # Saving the Prov-N File
-    with open (os.curdir + 'provn.txt', 'w') as fp:
+    with open (output_directory + 'provn.txt', 'w') as fp:
 	    fp.write(prov_doc.get_provn())
