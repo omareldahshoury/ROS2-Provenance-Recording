@@ -171,7 +171,20 @@ def ros2prov(ros_info):
         # We have to generate 2 way parameter relations betwen a node and its activity
         exec("relation_{0}_activity_{0}_set_parameters = \
             prov_doc.used('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
-        # prov_doc.used()
+        # exec("relation_{0}_activity_{0}_set_parameters = \
+        #     prov_doc.used('node:{0}', 'activity:{0}_set_parameters',\
+        #         time=list(ros_info.keys())[-1])".format(node_name))
+        
+        # Next we define publisher relations if any
+        pub_list = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['publishes_to']
+        if pub_list:
+            # We then cycle through all the topics the node publishes to ...
+            for pub in pub_list:
+                # For each of the publish actions, we create a publishing activity
+                exec("activity_{0}_to_{1}_Publisher = prov_doc.activity('activity:{0}_to_{1}_Publisher',\
+                startTime = list(ros_info.keys())[-1])"\
+                .format(node_name, pub.lstrip('/')))
+             
     print("Agents generated")
 
     # Next we generate the activities and the corresponding relations
