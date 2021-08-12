@@ -1,4 +1,5 @@
-""" This Program takes a snapshot of a single instance of a running ROS System and generates
+""" [Snapshot]
+    This Program takes a snapshot of a single instance of a running ROS System and generates
     an equivalent Prov Model as per the definitions defined in Prov_Model.md
 """
 
@@ -115,7 +116,7 @@ def ros2prov(ros_info):
     prov_doc.add_namespace('msg', 'http://wiki.ros.org/msg') # represents ros messages
     prov_doc.add_namespace('msg_format', 'The format in which the data/msg is stored/passed') # represents the processes performed
 
-    # We begin with creating the topics (entities)
+    # We begin with creating the topics (entities), their message formats (entities) and derived (relations)
     # We cycle 
     for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
         exec("topic_{} = prov_utilities.Topic(prov_doc,\
@@ -142,6 +143,12 @@ def ros2prov(ros_info):
             exec("list_of_objects.append({})".format(msg_type_var))
             if msg_type_var in globals() or msg_type_var in locals():
                 print(msg_type_var + "now declared as a variable")
+        
+        # Now we specify the relations between the topics and their data formats
+        # ros.wasDerivedFrom('topic:chatter', 'data_format:std_msgs/msg/String')
+        exec("relation_{0}_{1} = prov_doc.wasDerivedFrom('topic:{0}', 'msg:{1}')"\
+            .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/'),\
+                msg_type_var.lstrip("msg_")))
 
     # Next we generate the Nodes (i.e. Agents)
     print("Generating Agents")
@@ -154,6 +161,9 @@ def ros2prov(ros_info):
         exec("list_of_objects.append(node_{})".\
             format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))    
     print("Agents generated")
+
+    # Next we generate the activities and the corresponding relations
+
     
     return prov_doc
 
