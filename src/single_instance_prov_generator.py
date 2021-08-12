@@ -119,12 +119,31 @@ def ros2prov(ros_info):
     # We cycle 
     for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
         exec("topic_{} = prov_utilities.Topic(prov_doc,\
-                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'],\
-                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'],\
+                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/'),\
                                  list(ros_info.keys())[-1])"\
                                 .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
+        # We then add it to the list of object to keep track of it during the update process
         exec("list_of_objects.append(topic_{})".\
             format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
+        
+        # We also initialize the different message storage formats (msg_types)
+        # First we store the large variable name in a suitable format (replacing '/' with '//')
+        msg_type = ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'].lstrip('/')
+        msg_type_var = 'msg_' + "__".join(msg_type.split("/"))
+        # print('Message_type:', msg_type, msg_type_var)
+        # We first check if we have already initialized this message format before because we'd like
+        # to avoid duplicates
+        if msg_type_var not in globals() or msg_type_var not in locals():
+            print(msg_type_var + " was not a declared variable, declaring it as a variable now")
+            exec("{} = prov_utilities.Message(prov_doc,\
+                                    msg_type_var.lstrip('msg_'))"\
+                                    .format(msg_type_var))
+            # We then update this message format entity to our global object space
+            exec("list_of_objects.append({})".format(msg_type_var))
+            if msg_type_var in globals() or msg_type_var in locals():
+                print(msg_type_var + "now declared as a variable")
+        
+            
 
     return prov_doc
 
