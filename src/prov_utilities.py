@@ -4,9 +4,8 @@ import prov
 # We create a class for generating topic objects
 class Topic:
     # Here we intialize the class
-    def __init__(self, prov_doc, UID, message_type, init_time):
+    def __init__(self, prov_doc, UID, init_time):
         self.UID = UID
-        self.message_type = message_type
         self.init_time = init_time
         self.last_active = init_time
         self.generate_topic(prov_doc)
@@ -15,18 +14,29 @@ class Topic:
     # This function should only be called the first time i.e. during initialization
     def generate_topic(self, prov_doc):
         self.elem = prov_doc.entity('topic:{}'.format(self.UID),\
-            other_attributes = {'prov:label': self.UID,\
-                                'prov:type': self.message_type,\
-                                'prov:time_initialized':self.init_time,\
-                                'prov:last_active':self.last_active})
+            other_attributes = {'topic:label': self.UID,\
+                                'topic:time_initialized':self.init_time,\
+                                'topic:last_active':self.last_active})
 
-    def topic_info_parser(data):
-        data_li = data.rstrip("\n ").split("\n")
-        UID = data_li[0].split(" ")[-1].lstrip("/")
-        no_of_pubs = int(data_li[1].split(" ")[-1])
-        no_of_subs = int(data_li[2].split(" ")[-1])
+    # This function is used to update the existing topics if there are any changes
+    def update_topic(self, prov_doc):
+        # The code for editing the attributes will come here
+        pass
 
-        return UID, no_of_pubs, no_of_subs
+# We create a class for generating topic objects
+class Message:
+    # Here we intialize the class
+    def __init__(self, prov_doc, msg_type):
+        self.msg_type = msg_type
+        self.generate_msg_type(prov_doc)
+    
+    # We collect the data and generate the message entity in prov understandable terms
+    # This function should only be called the first time i.e. during initialization or
+    # when a new message type has been used
+    def generate_msg_type(self, prov_doc):
+        self.elem = prov_doc.entity('msg:{}'.format(self.msg_type))
+
+
 
 # We create a class for generating entitity objects
 class Entity:
