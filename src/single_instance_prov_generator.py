@@ -169,12 +169,16 @@ def ros2prov(ros_info):
                 startTime = list(ros_info.keys())[-1])"\
                 .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
         # We have to generate 2 way parameter relations betwen a node and its activity
+        # 'Used' relation starting from node and ending at the activity
         exec("relation_{0}_activity_{0}_set_parameters = \
             prov_doc.used('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
         # exec("relation_{0}_activity_{0}_set_parameters = \
         #     prov_doc.used('node:{0}', 'activity:{0}_set_parameters',\
         #         time=list(ros_info.keys())[-1])".format(node_name))
-        
+        # 'wasInfluencedBy' relation starting from activity and ending at Node
+        exec("relation_{0}_activity_{0}_set_parameters = \
+            prov_doc.wasInfluencedBy('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
+
         # Next we define publisher relations if any
         pub_list = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['publishes_to']
         if pub_list:
@@ -184,6 +188,12 @@ def ros2prov(ros_info):
                 exec("activity_{0}_to_{1}_Publisher = prov_doc.activity('activity:{0}_to_{1}_Publisher',\
                 startTime = list(ros_info.keys())[-1])"\
                 .format(node_name, pub.lstrip('/')))
+                
+                # Now that we have created the publisher, we could then create the relations of the
+                # publishing node and the activity. We use a simple publishing relationship
+                exec("relation_{0}_activity_{0}_to_{1}_Publisher = \
+                    prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Publisher')"\
+                        .format(node_name, pub.lstrip('/')))
              
     print("Agents generated")
 
