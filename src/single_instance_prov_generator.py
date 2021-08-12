@@ -35,7 +35,8 @@ def extract_ros_info(recording_node):
     
     # First we note the time and store it in the dictionary, this will be our key for the snapshot taken
     # at this instance
-    current_time = datetime.now().strftime('%H:%M:%S.%f %a-%d-%b-%Y')
+    # current_time = datetime.now().strftime('%H:%M:%S.%f %a-%d-%b-%Y')
+    current_time = datetime.now()
     
     # We initialize an empty dictionary, this will store all the relevant information
     ros_info = OrderedDict()
@@ -153,13 +154,24 @@ def ros2prov(ros_info):
     # Next we generate the Nodes (i.e. Agents)
     print("Generating Agents")
     for node_info in ros_info[list(ros_info.keys())[-1]]['nodes']:
+        node_name = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']
         exec("node_{} = prov_utilities.Agent(prov_doc,\
                                  ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name'],\
                                  list(ros_info.keys())[-1])"\
                                 .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
         # We then add it to the list of object to keep track of it during the update process
         exec("list_of_objects.append(node_{})".\
-            format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))    
+            format(node_name))
+        
+        # Next we generate the parameter activities
+        print("Just checking")
+        exec("activity_{0}_set_parameters = prov_doc.activity('activity:{0}_set_parameters',\
+                startTime = list(ros_info.keys())[-1])"\
+                .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
+        # We have to generate 2 way parameter relations betwen a node and its activity
+        exec("relation_{0}_activity_{0}_set_parameters = \
+            prov_doc.used('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
+        # prov_doc.used()
     print("Agents generated")
 
     # Next we generate the activities and the corresponding relations
@@ -196,7 +208,7 @@ if __name__ == "__main__":
     output_directory = 'ROS2Prov Model//'
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
-    print('Saving Files... to', os.path.join(os.getcwd(),output_directory))
+    print('Saving Files to', os.path.join(os.getcwd(),output_directory, ' ...'))
     
     dot = prov_to_dot(prov_doc)
     dot.write_png(output_directory + 'ros-prov-revised.png')
