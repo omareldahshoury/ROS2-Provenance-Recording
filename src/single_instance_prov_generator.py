@@ -194,6 +194,30 @@ def ros2prov(ros_info):
                 exec("relation_{0}_activity_{0}_to_{1}_Publisher = \
                     prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Publisher')"\
                         .format(node_name, pub.lstrip('/')))
+                # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
+                exec("relation_activity_{0}_to_{1}_Publisher_to_{1} = \
+                    prov_doc.wasInfluencedBy('topic:{1}', 'activity:{0}_to_{1}_Publisher')"\
+                        .format(node_name, pub.lstrip('/')))
+        
+        # Next we define subscriber relations if any
+        sub_list = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['subscribes_to']
+        if sub_list:
+            # We then cycle through all the topics the node subscribes to ...
+            for sub in sub_list:
+                # For each of the subscribe actions, we create a Subscriber activity
+                exec("activity_{0}_to_{1}_Subscriber = prov_doc.activity('activity:{0}_to_{1}_Subscriber',\
+                startTime = list(ros_info.keys())[-1])"\
+                .format(node_name, sub.lstrip('/')))
+                
+                # Now that we have created the subscriber, we could then create the relations of the
+                # subscribing node and the activity. We use a simple subscription relationship
+                exec("relation_{0}_activity_{0}_to_{1}_Subscriber = \
+                    prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Subscriber')"\
+                        .format(node_name, sub.lstrip('/')))
+                # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
+                exec("relation_activity_{0}_to_{1}_Subscriber_to_{1} = \
+                    prov_doc.wasInformedBy('activity:{0}_to_{1}_Subscriber', 'topic:{1}')"\
+                        .format(node_name, sub.lstrip('/')))
              
     print("Agents generated")
 
