@@ -142,9 +142,19 @@ def ros2prov(ros_info):
             exec("list_of_objects.append({})".format(msg_type_var))
             if msg_type_var in globals() or msg_type_var in locals():
                 print(msg_type_var + "now declared as a variable")
-        
-            
 
+    # Next we generate the Nodes (i.e. Agents)
+    print("Generating Agents")
+    for node_info in ros_info[list(ros_info.keys())[-1]]['nodes']:
+        exec("node_{} = prov_utilities.Agent(prov_doc,\
+                                 ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name'],\
+                                 list(ros_info.keys())[-1])"\
+                                .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
+        # We then add it to the list of object to keep track of it during the update process
+        exec("list_of_objects.append(node_{})".\
+            format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))    
+    print("Agents generated")
+    
     return prov_doc
 
 
