@@ -1,6 +1,7 @@
 import datetime
 import prov
 
+
 # We create a class for generating topic objects
 class Topic:
     # Here we intialize the class
@@ -23,6 +24,7 @@ class Topic:
         # The code for editing the attributes will come here
         pass
 
+
 # We create a class for generating topic objects
 class Message:
     # Here we intialize the class
@@ -35,7 +37,6 @@ class Message:
     # when a new message type has been used
     def generate_msg_type(self, prov_doc):
         self.elem = prov_doc.entity('msg:{}'.format(self.msg_type))
-
 
 
 # We create a class for generating entitity objects
@@ -68,17 +69,20 @@ class Entity:
 # We create a class for generating entitity objects
 class Agent:
     # Here we intialize the class
-    def __init__(self, prov_doc, UID):
+    def __init__(self, prov_doc, UID, init_time):
         self.UID = UID
-        self.init_time = datetime.datetime.now()
+        self.init_time = init_time
         self.generate_agent(prov_doc)
     
     # We collect the data and generate the agent in prov understandable terms
     def generate_agent(self, prov_doc):
-        # print("My name is:", self.UID)
         self.elem = prov_doc.agent('node:{}'.format(self.UID),\
-            other_attributes = {'prov:label': self.UID,\
-            'prov:time_initialized':self.init_time})
+            other_attributes = {'node:label': self.UID,\
+                'node:time_initialized':self.init_time,\
+                'node:last_active':self.init_time})
+
+    def update_agent(self, prov_doc):
+        pass
 
     # This function parses data from the node_ files and extracts relevant data
     def agent_info_parser(self, prov_doc, data):
@@ -119,7 +123,6 @@ class Agent:
         # Now we create publishers
         generate_pubs(self.UID, prov_doc, extract_dict['Publishers']) 
 
-
         return
 
 
@@ -146,6 +149,7 @@ def generate_subs(agent, prov_doc, subs): #, subs
             exec("prov_doc.used('activity:Subscribe_to_{}','node:{}')".format(topic, agent))
             exec("prov_doc.used('topic:{0}','activity:Subscribe_to_{0}')".format(topic))
             exec("prov_doc.wasInformedBy('node:{0}','topic:{1}')".format(agent, topic))
+
 
 # This function relates an agent to a set of topics as a publisher
 def generate_pubs(agent, prov_doc, pubs):
