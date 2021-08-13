@@ -82,8 +82,10 @@ class Agent:
                 'node:last_active':self.init_time})
 
     def update_agent(self, prov_doc):
+        # The code for editing agent attributes comes here
         pass
 
+    # The Data from this point on needs to be thought about
     # This function parses data from the node_ files and extracts relevant data
     def agent_info_parser(self, prov_doc, data):
         # print('Hi, I have reached this function')
@@ -125,6 +127,8 @@ class Agent:
 
         return
 
+def generate_param_activities_and_relations():
+    pass
 
 # This function relates an agent to a set of topics as subscriber
 # Note that we didn't create a class for activities themselves as these will be called
