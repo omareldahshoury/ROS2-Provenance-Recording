@@ -54,9 +54,13 @@ class GUIApp(MDApp):
 	def trial_run(self,*args):
 		#Defining the functionality of the Record button
 
-		#curr_directory = os.getcwd()
-		#exec(open(os.path.join(curr_directory,'ROS2-data-extraction.py')).read())
-		
+		curr_directory = os.getcwd()
+		print("\n\nRecording is in progress...")
+		exec(open(os.path.join(curr_directory,'ROS2-data-extraction-updated.py')).read())
+		#print("Recording Done.")
+
+		#ROS2-data-extraction-updated.py
+		"""
 		# We also initialize a counter to keep track of iterations
 		counter = 0
 
@@ -143,6 +147,6 @@ class GUIApp(MDApp):
 			# else: 
 			# 	# Here we print the time elapsed for the last iteration
 			# 	print("Iteration:", counter, "total Time elapsed:", time()-start_time, 'seconds')
-		print(f"\n Recording Ended. A total of {counter} instances were saved.")
+		print(f"\n Recording Ended. A total of {counter} instances were saved.")"""
 
 GUIApp().run()
