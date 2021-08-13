@@ -94,6 +94,19 @@ def display_ros_info(ros_info, indent=0):
         else:
             print('\t' * (indent+1) + str(value))
 
+def str_to_var_pre_processor(input_string):
+    """ Function to parse an input name so that it becomes compatible to be used as a variable
+        For example: we may have a string as '/turtle1/pose'. Certain characters such as "/"
+        prevent us from using this as a variable name. This function removes/replaces these
+        characters.
+
+        Input:      String: Containing the Name of an entity/activity along with the namespace
+
+        Output:     String: Processed Input Name along with namespace such that it can be used
+                            as a variable name
+    """
+    return "__".join(input_string.strip("/").split("/"))
+
 
 def ros2prov(ros_info):
     """ This function takes the extracted information of the ROS system as input
@@ -120,18 +133,20 @@ def ros2prov(ros_info):
     # We begin with creating the topics (entities), their message formats (entities) and derived (relations)
     # We cycle 
     for topic_info in ros_info[list(ros_info.keys())[-1]]['topics']:
-        exec("topic_{} = prov_utilities.Topic(prov_doc,\
-                                 ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/'),\
+        # We perform some pre-processing to make the name suitable for variable declaration
+        topic_name = str_to_var_pre_processor(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'])
+        # We then generate an entity for each topic
+        exec("topic_{0} = prov_utilities.Topic(prov_doc,\
+                                 topic_name,\
                                  list(ros_info.keys())[-1])"\
-                                .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
+                                .format(topic_name))
         # We then add it to the list of object to keep track of it during the update process
         exec("list_of_objects.append(topic_{})".\
-            format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/')))
+            format(topic_name))
         
         # We also initialize the different message storage formats (msg_types)
         # First we store the large variable name in a suitable format (replacing '/' with '//')
-        msg_type = ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'].lstrip('/')
-        msg_type_var = 'msg_' + "__".join(msg_type.split("/"))
+        msg_type_var = 'msg_' + str_to_var_pre_processor(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['type'])
         # print('Message_type:', msg_type, msg_type_var)
         # We first check if we have already initialized this message format before because we'd like
         # to avoid duplicates
@@ -148,17 +163,18 @@ def ros2prov(ros_info):
         # Now we specify the relations between the topics and their data formats
         # ros.wasDerivedFrom('topic:chatter', 'data_format:std_msgs/msg/String')
         exec("relation_{0}_{1} = prov_doc.wasDerivedFrom('topic:{0}', 'msg:{1}')"\
-            .format(ros_info[list(ros_info.keys())[-1]]['topics'][topic_info]['name'].lstrip('/'),\
-                msg_type_var.lstrip("msg_")))
+            .format(topic_name, msg_type_var.lstrip("msg_")))
 
     # Next we generate the Nodes (i.e. Agents)
     print("Generating Agents")
     for node_info in ros_info[list(ros_info.keys())[-1]]['nodes']:
-        node_name = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']
+        # We perform pre-processing on the node name to make it compatible to be used as a variable
+        node_name = str_to_var_pre_processor(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name'])
+        # We then use this node_name to generate Node(Agent)
         exec("node_{} = prov_utilities.Agent(prov_doc,\
                                  ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name'],\
                                  list(ros_info.keys())[-1])"\
-                                .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
+                                .format(node_name))
         # We then add it to the list of object to keep track of it during the update process
         exec("list_of_objects.append(node_{})".\
             format(node_name))
@@ -167,7 +183,7 @@ def ros2prov(ros_info):
         print("Just checking")
         exec("activity_{0}_set_parameters = prov_doc.activity('activity:{0}_set_parameters',\
                 startTime = list(ros_info.keys())[-1])"\
-                .format(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name']))
+                .format(node_name))
         # We have to generate 2 way parameter relations betwen a node and its activity
         # 'Used' relation starting from node and ending at the activity
         exec("relation_{0}_activity_{0}_set_parameters = \
@@ -187,17 +203,17 @@ def ros2prov(ros_info):
                 # For each of the publish actions, we create a publishing activity
                 exec("activity_{0}_to_{1}_Publisher = prov_doc.activity('activity:{0}_to_{1}_Publisher',\
                 startTime = list(ros_info.keys())[-1])"\
-                .format(node_name, pub.lstrip('/')))
+                .format(node_name, str_to_var_pre_processor(pub)))
                 
                 # Now that we have created the publisher, we could then create the relations of the
                 # publishing node and the activity. We use a simple publishing relationship
                 exec("relation_{0}_activity_{0}_to_{1}_Publisher = \
                     prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Publisher')"\
-                        .format(node_name, pub.lstrip('/')))
+                        .format(node_name, str_to_var_pre_processor(pub)))
                 # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
                 exec("relation_activity_{0}_to_{1}_Publisher_to_{1} = \
                     prov_doc.wasInfluencedBy('topic:{1}', 'activity:{0}_to_{1}_Publisher')"\
-                        .format(node_name, pub.lstrip('/')))
+                        .format(node_name, str_to_var_pre_processor(pub)))
         
         # Next we define subscriber relations if any
         sub_list = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['subscribes_to']
@@ -207,23 +223,19 @@ def ros2prov(ros_info):
                 # For each of the subscribe actions, we create a Subscriber activity
                 exec("activity_{0}_to_{1}_Subscriber = prov_doc.activity('activity:{0}_to_{1}_Subscriber',\
                 startTime = list(ros_info.keys())[-1])"\
-                .format(node_name, sub.lstrip('/')))
+                .format(node_name, str_to_var_pre_processor(sub)))
                 
                 # Now that we have created the subscriber, we could then create the relations of the
                 # subscribing node and the activity. We use a simple subscription relationship
                 exec("relation_{0}_activity_{0}_to_{1}_Subscriber = \
                     prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Subscriber')"\
-                        .format(node_name, sub.lstrip('/')))
+                        .format(node_name, str_to_var_pre_processor(sub)))
                 # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
                 exec("relation_activity_{0}_to_{1}_Subscriber_to_{1} = \
                     prov_doc.wasInformedBy('activity:{0}_to_{1}_Subscriber', 'topic:{1}')"\
-                        .format(node_name, sub.lstrip('/')))
-             
-    print("Agents generated")
+                        .format(node_name, str_to_var_pre_processor(sub)))
 
-    # Next we generate the activities and the corresponding relations
-
-    
+    print("Prov Model Generated Successfully")  
     return prov_doc
 
 
