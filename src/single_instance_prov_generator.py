@@ -1,4 +1,4 @@
-""" [Snapshot]
+""" [ROS Snapshot]
     This Program takes a snapshot of a single instance of a running ROS System and generates
     an equivalent Prov Model as per the definitions defined in Prov_Model.md
 """
@@ -85,7 +85,7 @@ def display_ros_info(ros_info, indent=0):
 
         Input:      Dictionary of extracted info
 
-        Output:     None
+        Output:     None (We just print the dictionary)
     """
     for key, value in ros_info.items():
         print('\t' * indent + str(key))
@@ -93,6 +93,7 @@ def display_ros_info(ros_info, indent=0):
             display_ros_info(value, indent+1)
         else:
             print('\t' * (indent+1) + str(value))
+
 
 def str_to_var_pre_processor(input_string):
     """ Function to parse an input name so that it becomes compatible to be used as a variable
@@ -164,9 +165,11 @@ def ros2prov(ros_info):
         # ros.wasDerivedFrom('topic:chatter', 'data_format:std_msgs/msg/String')
         exec("relation_{0}_{1} = prov_doc.wasDerivedFrom('topic:{0}', 'msg:{1}')"\
             .format(topic_name, msg_type_var.lstrip("msg_")))
+        # We add it to the global object space
+        exec("list_of_objects.append(relation_{0}_{1})"\
+            .format(topic_name, msg_type_var.lstrip("msg_")))
 
     # Next we generate the Nodes (i.e. Agents)
-    print("Generating Agents")
     for node_info in ros_info[list(ros_info.keys())[-1]]['nodes']:
         # We perform pre-processing on the node name to make it compatible to be used as a variable
         node_name = str_to_var_pre_processor(ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['name'])
@@ -176,24 +179,31 @@ def ros2prov(ros_info):
                                  list(ros_info.keys())[-1])"\
                                 .format(node_name))
         # We then add it to the list of object to keep track of it during the update process
-        exec("list_of_objects.append(node_{})".\
-            format(node_name))
+        exec("list_of_objects.append(node_{})".format(node_name))
         
         # Next we generate the parameter activities
-        print("Just checking")
         exec("activity_{0}_set_parameters = prov_doc.activity('activity:{0}_set_parameters',\
                 startTime = list(ros_info.keys())[-1])"\
                 .format(node_name))
+        # Storing the activites to the global object space
+        exec("list_of_objects.append(activity_{0}_set_parameters)".format(node_name))
+
         # We have to generate 2 way parameter relations betwen a node and its activity
         # 'Used' relation starting from node and ending at the activity
-        exec("relation_{0}_activity_{0}_set_parameters = \
+        exec("relation_node_{0}_to_activity_{0}_set_parameters = \
             prov_doc.used('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
         # exec("relation_{0}_activity_{0}_set_parameters = \
         #     prov_doc.used('node:{0}', 'activity:{0}_set_parameters',\
         #         time=list(ros_info.keys())[-1])".format(node_name))
+        # Storing the relation to the global object space
+        exec("list_of_objects.append(relation_node_{0}_to_activity_{0}_set_parameters)".format(node_name))
+
         # 'wasInfluencedBy' relation starting from activity and ending at Node
-        exec("relation_{0}_activity_{0}_set_parameters = \
+        exec("relation_activity_{0}_set_parameters_to_node_{0} = \
             prov_doc.wasInfluencedBy('node:{0}', 'activity:{0}_set_parameters')".format(node_name))
+        # Storing the relation to the global object space
+        exec("list_of_objects.append(relation_activity_{0}_set_parameters_to_node_{0})"\
+            .format(node_name))
 
         # Next we define publisher relations if any
         pub_list = ros_info[list(ros_info.keys())[-1]]['nodes'][node_info]['publishes_to']
@@ -202,17 +212,27 @@ def ros2prov(ros_info):
             for pub in pub_list:
                 # For each of the publish actions, we create a publishing activity
                 exec("activity_{0}_to_{1}_Publisher = prov_doc.activity('activity:{0}_to_{1}_Publisher',\
-                startTime = list(ros_info.keys())[-1])"\
-                .format(node_name, str_to_var_pre_processor(pub)))
-                
+                        startTime = list(ros_info.keys())[-1])"\
+                        .format(node_name, str_to_var_pre_processor(pub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(activity_{0}_to_{1}_Publisher)"\
+                        .format(node_name, str_to_var_pre_processor(pub)))
+
                 # Now that we have created the publisher, we could then create the relations of the
                 # publishing node and the activity. We use a simple publishing relationship
                 exec("relation_{0}_activity_{0}_to_{1}_Publisher = \
                     prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Publisher')"\
                         .format(node_name, str_to_var_pre_processor(pub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(relation_{0}_activity_{0}_to_{1}_Publisher)"\
+                        .format(node_name, str_to_var_pre_processor(pub)))
+
                 # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
                 exec("relation_activity_{0}_to_{1}_Publisher_to_{1} = \
                     prov_doc.wasInfluencedBy('topic:{1}', 'activity:{0}_to_{1}_Publisher')"\
+                        .format(node_name, str_to_var_pre_processor(pub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(relation_activity_{0}_to_{1}_Publisher_to_{1})"\
                         .format(node_name, str_to_var_pre_processor(pub)))
         
         # Next we define subscriber relations if any
@@ -222,18 +242,28 @@ def ros2prov(ros_info):
             for sub in sub_list:
                 # For each of the subscribe actions, we create a Subscriber activity
                 exec("activity_{0}_to_{1}_Subscriber = prov_doc.activity('activity:{0}_to_{1}_Subscriber',\
-                startTime = list(ros_info.keys())[-1])"\
-                .format(node_name, str_to_var_pre_processor(sub)))
+                        startTime = list(ros_info.keys())[-1])"\
+                        .format(node_name, str_to_var_pre_processor(sub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(activity_{0}_to_{1}_Subscriber)"\
+                        .format(node_name, str_to_var_pre_processor(sub)))
                 
                 # Now that we have created the subscriber, we could then create the relations of the
                 # subscribing node and the activity. We use a simple subscription relationship
                 exec("relation_{0}_activity_{0}_to_{1}_Subscriber = \
-                    prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Subscriber')"\
+                        prov_doc.used('node:{0}', 'activity:{0}_to_{1}_Subscriber')"\
                         .format(node_name, str_to_var_pre_processor(sub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(relation_{0}_activity_{0}_to_{1}_Subscriber)"\
+                        .format(node_name, str_to_var_pre_processor(sub)))
+
                 # The activity influences the topic and hence we place an 'wasInfluencedBy' relation
                 exec("relation_activity_{0}_to_{1}_Subscriber_to_{1} = \
-                    prov_doc.wasInformedBy('activity:{0}_to_{1}_Subscriber', 'topic:{1}')"\
+                        prov_doc.wasInformedBy('activity:{0}_to_{1}_Subscriber', 'topic:{1}')"\
                         .format(node_name, str_to_var_pre_processor(sub)))
+                # Storing it to the global object space
+                exec("list_of_objects.append(relation_activity_{0}_to_{1}_Subscriber_to_{1})"\
+                        .format(node_name, str_to_var_pre_processor(sub)))        
 
     print("Prov Model Generated Successfully")  
     return prov_doc
