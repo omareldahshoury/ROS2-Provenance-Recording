@@ -8,6 +8,7 @@ import pandas as pd
 from datetime import datetime
 from time import time
 from single_instance_prov_generator import *
+from ROS2_data_extraction_updated import *
 
 class GUIApp(MDApp):
 	def __init__(self, **kwargs):
@@ -46,13 +47,17 @@ class GUIApp(MDApp):
 		#Defining the functionality of the Record button
 		curr_directory = os.getcwd()
 		print("\n\nRecording is in progress...")
-		file_name = 'ROS2-data-extraction-updated.py'
+		file_name = 'ROS2_data_extraction_updated.py'
 		exec(open(os.path.join(curr_directory,file_name)).read())
 		#exec(compile(open(os.path.join(curr_directory,file_name),"rb").read(),file_name,'exec'), globals(), locals())
 		print("Recording Done.")
 		#exec(compile(open(filename, "rb").read(), filename, 'exec'), globals(), locals())
 
-	
-		
+
+#if __name__ == "__main__":
+	#a = Process(target=de)
+    	#b = Process(target=modbusStart)
+    	#a.start()
+    	#b.start()
 
 GUIApp().run()
