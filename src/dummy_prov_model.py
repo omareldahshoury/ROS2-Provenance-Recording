@@ -16,6 +16,7 @@ ros.add_namespace('node', 'https://docs.ros.org/en/dashing/Tutorials/Understandi
 ros.add_namespace('topic', 'https://docs.ros.org/en/dashing/Tutorials/Topics/Understanding-ROS2-Topics.html') # represents ros topics
 ros.add_namespace('msg', 'http://wiki.ros.org/msg') # represents ros messages
 ros.add_namespace('activity', 'undefined') # represents the processes performed
+ros.add_namespace('msg_format', 'The format in which the data is stored/passed') # represents the processes performed
 
 # Some more for future use
 ros.add_namespace('module', 'python programs or groups') # represents collection of ros enities, may be in the form of a program
@@ -54,17 +55,19 @@ ros.activity('activity:listener_set_param')
 # We begin with describing the topics being used
 # The essential parameters which we'd like to define are: name, type/msg_format and time of initialization
 ros.entity('topic:chatter',\
-           {'prov:label':'chatter',\
-            'prov:type':'std_msgs/msg/String',\
+           other_attributes={'prov:label':'chatter',\
             'prov:time_initialized':datetime.datetime.now()})
 ros.entity('topic:parameter_events',\
            {'prov:label':'parameter_events',\
-            'prov:type':'rcl_interfaces/msg/ParameterEvent',\
             'prov:time_initialized':datetime.datetime.now()})
 ros.entity('topic:rosout',\
            {'prov:label':'rosout',\
-            'prov:type':'rcl_interfaces/msg/Log',\
             'prov:time_initialized':datetime.datetime.now()})
+
+# As the topics use a pre-defined data type, we could also make these data structures entities
+ros.entity('msg_format:std_msgs/msg/String')
+ros.entity('msg_format:rcl_interfaces/msg/ParameterEvent')
+ros.entity('msg_format:rcl_interfaces/msg/Log')
 
 # Then we describe the message being exchanged, we should note that the graphical view can become a bit clunky
 # but we have to model messages as entities to ensure that we store the information, as for the point regarding
@@ -76,52 +79,53 @@ ros.entity('msg:message_1',\
             'prov:type':'std_msgs/msg/String',\
             'prov:time_generated':datetime.datetime.now()})
 
-
-
-# Finally we draw the relations between the nodes and the topics
+# Finally we draw the relations between the nodes, topics, messages and activities
 
 # Next we define the relations for each topic/msg
 
 # We begin with the topic Chatter
-# Node "Talker" publishes to topic "Chatter"
-ros.used('activity:talker_Publish_to_chatter', 'topic:chatter')
+# Node "Talker" publishes to topic "Chatter" through the activity "talker_Publish_to_chatter"
 ros.used('node:talker','activity:talker_Publish_to_chatter')
-# Node "Listener" listens to the chatter topic 
-ros.used('activity:listener_Subscribe_to_chatter','node:listener')
-ros.used('topic:chatter', 'activity:listener_Subscribe_to_chatter')
+ros.wasInfluencedBy('topic:chatter', 'activity:talker_Publish_to_chatter')
+# Node "Listener" listens to the chatter topic through the activity "listener_Subscribe_to_chatter"
+ros.used('node:listener', 'activity:listener_Subscribe_to_chatter')
+ros.wasInformedBy('activity:listener_Subscribe_to_chatter', 'topic:chatter')
 
+# Topics borrow from pre-defined message types
+ros.wasDerivedFrom('topic:chatter', 'msg_format:std_msgs/msg/String')
+ros.wasDerivedFrom('topic:parameter_events', 'msg_format:rcl_interfaces/msg/ParameterEvent')
+ros.wasDerivedFrom('topic:rosout', 'msg_format:rcl_interfaces/msg/Log')
 
 # We then give the same relations for the messages
 # Node "Talker" publishes the message "message_1"
-ros.used('activity:talker_Publish_to_chatter', 'msg:message_1')
+ros.wasGeneratedBy('msg:message_1', 'activity:talker_Publish_to_chatter')
 # Node "Listener" listens to the message "message_1"
-ros.used('msg:message_1', 'activity:listener_Subscribe_to_chatter')
+ros.used('activity:listener_Subscribe_to_chatter', 'msg:message_1')
+
+# Defining the hidden relations
 
 # Publishing to parameter_events
 # talker
-ros.used('activity:talker_Publish_to_parameter_events', 'topic:parameter_events')
 ros.used('node:talker','activity:talker_Publish_to_parameter_events')
-# ros.used('node:/_ros2cli_daemon_0','activity:Publish_to_parameter_events')
-
+ros.wasInfluencedBy('topic:parameter_events', 'activity:talker_Publish_to_parameter_events')
 # listener
-ros.used('activity:listener_Publish_to_parameter_events', 'topic:parameter_events')
 ros.used('node:listener','activity:listener_Publish_to_parameter_events')
-
+ros.wasInfluencedBy('topic:parameter_events', 'activity:listener_Publish_to_parameter_events')
 
 # Publishing to rosout
 # talker
-ros.used('activity:talker_Publish_to_rosout', 'topic:rosout')
 ros.used('node:talker','activity:talker_Publish_to_rosout')
-# chatter
-ros.used('activity:listener_Publish_to_rosout', 'topic:rosout')
+ros.wasInfluencedBy('topic:rosout', 'activity:talker_Publish_to_rosout')
+# listener
 ros.used('node:listener','activity:listener_Publish_to_rosout')
+ros.wasInfluencedBy('topic:rosout', 'activity:listener_Publish_to_rosout')
 
 # We also have to define the set relations, which change the ROS param of the nodes
 # Talker
-ros.used('activity:talker_set_param', 'node:talker')
+ros.wasInfluencedBy('node:talker', 'activity:talker_set_param')
 ros.used('node:talker','activity:talker_set_param')
 # Listener
-ros.used('activity:listener_set_param', 'node:listener')
+ros.wasInfluencedBy('node:listener', 'activity:listener_set_param')
 ros.used('node:listener','activity:listener_set_param')
 
 
