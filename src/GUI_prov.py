@@ -7,7 +7,7 @@ import os
 import pandas as pd
 from datetime import datetime
 from time import time
-
+from single_instance_prov_generator import *
 
 class GUIApp(MDApp):
 	def __init__(self, **kwargs):
@@ -23,7 +23,8 @@ class GUIApp(MDApp):
 		#Defining the functionality of the Dummy Prov Model button		
 		curr_directory = os.getcwd()
 		print("Generating Prov model...")
-		exec(open(os.path.join(curr_directory,'dummy_prov_model.py')).read())
+		file_name = 'dummy_prov_model.py'
+		exec(open(os.path.join(curr_directory,file_name)).read())
 		#print("Done. Model is saved in the Extracted_Info directory.")
 		print("\n Opening Prov model")
 		from PIL import Image
@@ -33,20 +34,23 @@ class GUIApp(MDApp):
 		
 		
 	def ROS_Snapshot(self,*args):
-		#Defining the functionality of the Ros to Prov Parser button		
+		#Defining the functionality of the Ros Snapshot button		
 		curr_directory = os.getcwd()
-		print("Runing ROS2 Snapshot...")
-		print("Current Directory: ", curr_directory)
-		exec(open(os.path.join(curr_directory,'single_instance_prov_generator.py')).read())
+		#print("Runing ROS2 Snapshot...")
+		file_name = 'single_instance_prov_generator.py'
+		exec(open(os.path.join(curr_directory,file_name)).read())
 		
 
 	def record(self,*args):
-		#Defining the functionality of the Record button
 
+		#Defining the functionality of the Record button
 		curr_directory = os.getcwd()
 		print("\n\nRecording is in progress...")
-		exec(open(os.path.join(curr_directory,'ROS2-data-extraction-updated.py')).read())
-		#print("Recording Done.")
+		file_name = 'ROS2-data-extraction-updated.py'
+		exec(open(os.path.join(curr_directory,file_name)).read())
+		#exec(compile(open(os.path.join(curr_directory,file_name),"rb").read(),file_name,'exec'), globals(), locals())
+		print("Recording Done.")
+		#exec(compile(open(filename, "rb").read(), filename, 'exec'), globals(), locals())
 
 	
 		
