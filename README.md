@@ -19,8 +19,9 @@ pip install -r requirements.txt
 
 **Necessary:** *Launch your ROS system which you'd like to record*<br>
 
-There are two ways to use the ROS2Prov:
-I) Recommended way:
+There are two methods to use the ROS2Prov:
+
+I) Recommended and easier method:
 To run the GUI:<br>
 1) cd to the directory where `GUI_prov.py` is located
 2) Run the below command in the shell:
@@ -28,7 +29,7 @@ To run the GUI:<br>
 python3 GUI_prov.py
 </pre>
 
-II) Manual way:
+II) Manual method:
 To extract the data from the ROS system using the python file: <br>
 1) cd to the directory where `ROS2-data-extraction-updated.py` is located
 2) Run the below command in the shell:
