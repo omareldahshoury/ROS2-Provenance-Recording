@@ -19,6 +19,16 @@ pip install -r requirements.txt
 
 **Necessary:** *Launch your ROS system which you'd like to record*<br>
 
+There are two ways to use the ROS2Prov:
+I) Recommended way:
+To run the GUI:<br>
+1) cd to the directory where `GUI_prov.py` is located
+2) Run the below command in the shell:
+<pre>
+python3 GUI_prov.py
+</pre>
+
+II) Manual way:
 To extract the data from the ROS system using the python file: <br>
 1) cd to the directory where `ROS2-data-extraction-updated.py` is located
 2) Run the below command in the shell:
@@ -36,12 +46,7 @@ python3 single_instance_prov_generator.py
 3) You can find the Prov Model files in the folder `ROS2Prov Model`
 This file will take the information about the current running nodes, topics etc and generate the prov model based on it.
 
-To run the GUI:<br>
-1) cd to the directory where `GUI_prov.py` is located
-2) Run the below command in the shell:
-<pre>
-python3 GUI_prov.py
-</pre>
+
 
 ### Future possibility
 Currently we can get a single time snapshot of the system i.e. the data for the current time and convert it into a provenance model. We also have the functionality to store the data with a start-stop button. We can extend this to a real-time system which take the data and converts it into a prov model till the stop button is pushed.
