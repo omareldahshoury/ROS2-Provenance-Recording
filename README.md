@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 **Necessary:** *Launch your ROS system which you'd like to record*<br>
 
-###There are two methods to use the ROS2Prov:
+### There are two methods to use the ROS2Prov:
 
 I) Recommended and easier method:
 To run the GUI:<br>
